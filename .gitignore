@@ -1,0 +1,15 @@
+lightning_logs
+runs
+createlmd.ipynb
+dataselect.ipynb
+detections.ipynb
+lightning_train.ipynb
+lmdb_dataset.ipynb
+memmap_dataset_copy.ipynb
+notebookd99fc61b2d_copy.ipynb
+notebookd99fc61b2d.ipynb
+shutdown.py 
+test.ipynb
+*.pth
+src/__pycache__
+

@@ -1,0 +1,17 @@
+Flask
+lmdb
+matplotlib
+numpy
+onnx
+onnxruntime
+onnxruntime-gpu
+opencv-python
+pandas
+Pillow
+pycocotools
+pytorch-ignite
+pytorch-lightning
+tensorboard
+tensorboard-data-server
+torchmetrics==0.6.0
+tqdm
