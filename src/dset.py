@@ -136,13 +136,7 @@ class COCODataset(torch.utils.data.Dataset):
         target = {"boxes":boxes,"labels":labels,"image_id":image_id,"iscrowd":iscrowd}
         
         if self.transforms is not None: 
-            img,target = self.transforms(img,target) #tokenize the target # make a seperate target transform
-        
-        #add bbox area after applying transform to bboxes.
-        #target["area"] = (target["boxes"][:, 3] - target["boxes"][:, 1]) * (target["boxes"][:, 2] - target["boxes"][:, 0])
-        
-        '''convert bboxes to tensor after transformations if using transforms 
-        boxes = torch.as_tensor(boxes)'''
+            img,target = self.transforms(img,target) 
             
         return img,target
     

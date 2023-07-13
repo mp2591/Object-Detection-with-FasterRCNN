@@ -45,8 +45,6 @@ class FasterRCNNLightningModule(pl.LightningModule):
         self.batch_size = batch_size
         self.optim_type = optim_type
         self.scheduler_type = scheduler_type
-        #self.training_epoch_output = []
-        #self.validation_epoch_output = []
         self.save_hyperparameters("lr","sgd_momentum","sgd_wd")
     
     def forward(self,input):
@@ -59,19 +57,12 @@ class FasterRCNNLightningModule(pl.LightningModule):
         loss = sum(loss for loss in loss_dict.values())
         self.log('running_train_loss',loss,prog_bar=True,on_step=True,on_epoch=True,logger=True,batch_size=self.batch_size)
         self.log_dict(loss_dict,on_step=True,on_epoch=True,logger=True,batch_size=self.batch_size)
-        #print(self.trainer.optimizers[0].param_groups[0]['lr'])
         if not torch.isfinite(loss): #in case of loss becomes infinite
             print(f"loss = {loss}, stop training")
             sys.exit("Training loss is infinite. Training stopped.")
-            #os.system("shutdown.exe /s /t 10")
-        #self.training_epoch_output.append(loss)
+            #os.system("shutdown.exe /s /t 10") 
         return loss
         
-    
-    '''def on_train_epoch_end(self) -> None:
-        epoch_train_loss = torch.stack(self.training_epoch_output).mean()
-        self.log('epoch_train_loss',epoch_train_loss,prog_bar=True)
-        self.training_epoch_output = []'''
     
     def validation_step(self,batch,batch_idx):
         images,targets = batch
@@ -80,12 +71,8 @@ class FasterRCNNLightningModule(pl.LightningModule):
         self.map.update(detections,targets)
         self.log('val_loss',val_loss,prog_bar=True,on_step=True,on_epoch=True,logger=True,batch_size=self.batch_size)
         self.log_dict(val_loss_dict,on_step=True,on_epoch=True,logger=True,batch_size=self.batch_size)
-        #self.validation_epoch_output.append(val_loss)
 
     def on_validation_epoch_end(self) -> None:
-        #epoch_val_loss = torch.stack(self.validation_epoch_output).mean()
-        #self.log('epoch_val_loss',epoch_val_loss,prog_bar=True,logger=True,)
-        #self.validation_epoch_output = []
         mAP_state_compute = self.map.compute()
         mAP = {k:mAP_state_compute[k] for k in mAP_state_compute.keys() if k != "map_per_class" and k != "mar_100_per_class"} #{k:v.item() for k,v in mAP_state_compute.items()} 
         mAP_class = {self.training_set.contiguous_id_to_category_name[i+1]:mAP_state_compute["map_per_class"][i] for i,_ in enumerate(mAP_state_compute["map_per_class"])}

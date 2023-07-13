@@ -73,35 +73,6 @@ if __name__=="__main__":
     dataset_valid = LMDBDataset(lmdb_val,annFile_val,categories=dataset_categories,num_imgs_per_cat=200)  # COCODataset(imgdir_val,annFile_val)  
     num_classes = len(dataset_train.categories)+1 if dataset_train.categories is not None else len(dataset_train.cat_list)+1 #+1 for background class
 
-    #computing subset indices. seed already set so it will be reproducible
-    #subset_indices_train = np.random.randint(0,len(dataset_train)+1,size=8192)
-    #subset_indices_valid = np.random.randint(0,len(dataset_valid)+1,size=5000) #
-
-    #dataset_train = torch.utils.data.Subset(dataset_train,indices=subset_indices_train)
-    #dataset_valid = torch.utils.data.Subset(dataset_valid,indices=subset_indices_valid)
-    
-
-
-
-    '''def show(sample):
-        
-
-        image, target = sample
-        if isinstance(image,Image):
-            image = F.pil_to_tensor(image)
-        image = F.convert_image_dtype(image, torch.uint8)
-        annotated_image = draw_bounding_boxes(image, target["boxes"], colors="yellow", width=3)
-
-        fig, ax = plt.subplots()
-        ax.imshow(annotated_image.permute(1, 2, 0).numpy())
-        ax.set(xticklabels=[], yticklabels=[], xticks=[], yticks=[])
-        fig.tight_layout()
-
-        fig.show()
-        
-
-    show(sample)'''
-
 
     # data loading
     batch_size = 16
@@ -124,24 +95,7 @@ if __name__=="__main__":
 
 
     #show image
-    #dataset_train.show_annotated_image(9562) #dont use it with multi processing dataloader. it will cause deadlock
-
-    #testing code
-    '''images,targets = next(iter(val_loader))
-
-
-    images = [image.to(device) for image in images]
-    targets = [{k:v.to(device) for k,v in tar.items()} for tar in targets]
-
-    model = get_model()
-    model.to(device)
-    model.eval()
-    with torch.no_grad():
-        loss_dict_val,detections = eval_forward(model,images,targets)
-    loss_dict_val
-    '''
-    #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    #print(device)
+    #dataset_train.show_annotated_image(9562) #dont use it with multi processing dataloader.
 
     # get the model using our helper function
     model = get_model(num_classes)
@@ -191,11 +145,6 @@ if __name__=="__main__":
         logger.add_scalars("run_"+str(t_1)+"_map_",mAP_class,epoch)
         logger.add_scalars("run_"+str(t_1)+"_mar100_",mAR_class,epoch)
 
-        '''for i,v in enumerate(mAP_state_compute["map_per_class"]):
-            logger.add_scalar("mAP_"+str(dataset_train.contiguous_id_to_category_name[i+1]),v.item(),epoch)
-        for i,v in enumerate(mAP_state_compute["mar_100_per_class"]):
-            logger.add_scalar("mar_100_"+str(dataset_train.contiguous_id_to_category_name[i+1]),v.item(),epoch)'''
-
         #calling early stopper with its __call__ method
         early_stopper(mAP["map"],avg_val_loss,epoch) 
         print(early_stopper.early_stop)
@@ -205,35 +154,22 @@ if __name__=="__main__":
         if early_stopper.early_stop:
             model.load_state_dict(early_stopper.best_state_dict)
             model.eval()
-            torch.save(early_stopper.best_state_dict,'model_state_dict_epoch_'+str(early_stopper.epoch)+'.pth')
+            torch.save(early_stopper.best_state_dict,f'FasterRCNN_StateDict.epoch_{str(early_stopper.epoch)}.pth')
             break
 
     logger.close()
 
     #saving model
-    torch.save(model,f'model_no_early_stop_run ={t_1}.pt')
+    torch.save(model,f'FasterRCNN{t_1}.pt')
     #saving model state dict    
-    torch.save(model.state_dict(),f'model_state_dict_no_early_stop_run ={t_1}.pth')
-    torch.save(early_stopper.best_state_dict,'best_model_state_dict_end of_run.epoch_'+str(early_stopper.epoch)+'.pth')
+    torch.save(model.state_dict(),f'FasterRCNN_StateDict_{t_1}.pth')
+    
 
 
     gc.collect()
     torch.cuda.empty_cache()
-    
-    #model = torch.jit.script(model) # Export to TorchScript
-    #torch.save(model,'model_scripted_lmdb'+str(time.time())+'.pt')
 
-    system_shutdown()
         
- 
-'''a = [8226,16985,32813,42393,45854,48854,50973,63543,68796,75743,81166,83730,85730,106324,108944,114381,115754,2486,3041]
-for i in a:
-    _,target = dataset_train[i]
-    print(target["boxes"])'''
-
-
-
-#if __name__=="__main__":
 
 
     

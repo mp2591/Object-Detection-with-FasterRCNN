@@ -14,6 +14,7 @@ from FasterRCNNLIghtningModule import FasterRCNNLightningModule
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.tuner.tuning import Tuner
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping, LearningRateMonitor, StochasticWeightAveraging
+from typing import Union
 
 
 import torchmetrics 
@@ -52,7 +53,7 @@ if __name__=="__main__":
     parser.add_argument("--patience",type=int,default=15,help="number of epochs to wait before early stopping")
     parser.add_argument("--mode",type=str,default="max",help="max or min for early stopping")
     parser.add_argument("--dirpath",type=str,default="checkpoints",help="directory path to save checkpoints")
-    parser.add_argument("--swa_epoch_start",type=float,default=0.5,help="epoch to start stochastic weight averaging")
+    parser.add_argument("--swa_epoch_start",type=Union[float,int],default=0.5,help="epoch to start stochastic weight averaging. int for epoch number, float for after percentage of total epochs")
     parser.add_argument("--monitor",type=str,default="Mean Average Precision",help="metric to monitor for early stopping and checkpointing")
     parser.add_argument("--save_weights_only",type=bool,default=True,help="whether to save only weights or whole model")
     parser.add_argument("--lr_finder",type=bool,default=False,help="whether to tune lr or not")
