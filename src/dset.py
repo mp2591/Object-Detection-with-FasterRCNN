@@ -22,7 +22,6 @@ def has_valid_annotation(ann):
 
 class COCODataset(torch.utils.data.Dataset): 
     
-    # can streight up use COCODetection class or inharite it? -- doesnt work so made my own dataset
     def __init__(self, root, annFile, transforms=None, remove_images_without_annotations=True, categories=None):
         
         
